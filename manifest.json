@@ -1,7 +1,7 @@
 {
   "name": "SmartTourism App",
   "short_name": "ST_App",
-  "start_url": "/",
+  "start_url": "/PrototypeSmartTourism_App/",
   "display": "standalone", 
   "background_color": "#ffffff",
   "theme_color": "#000000",
