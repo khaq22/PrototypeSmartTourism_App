@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartTour Semarang - KTI RISE 2026</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Custom Scrollbar Hiding & Animations */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .animate-fade-in {
+      animation: fade-in 0.3s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 font-sans">
+  
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    
+    // --- WORKAROUND UNTUK LUCIDE ICONS DI BROWSER ---
+    // Mengubah data mentah vanilla Lucide menjadi Komponen React yang stabil
+    const camelCase = (str) => str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+
+    const LucideIcon = ({ name, size = 24, className = "", ...props }) => {
+      const iconNode = window.lucide.icons[name];
+      if (!iconNode) return null;
+
+      // Mendukung format struktur array Lucide versi baru dan lama
+      const childrenNodes = Array.isArray(iconNode[0]) ? iconNode : (iconNode[2] || []);
+
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          {...props}
+        >
+          {childrenNodes.map(([tag, attrs], index) => {
+            const reactAttrs = {};
+            for (const [key, value] of Object.entries(attrs || {})) {
+              reactAttrs[camelCase(key)] = value;
+            }
+            return React.createElement(tag, { key: index, ...reactAttrs });
+          })}
+        </svg>
+      );
+    };
+
+    // Daftar semua ikon yang digunakan di aplikasi
+    const iconNames = [
+      "Home", "Map", "Heart", "User", "Search", "MapPin", "ChevronLeft", "Navigation2", 
+      "Star", "Clock", "MoreHorizontal", "Mail", "Lock", "EyeOff", "Settings", "Bell", "Shield", 
+      "LogOut", "MapPinned", "ArrowRight", "X"
+    ];
+
+    // Generate komponen React secara dinamis
+    const Icons = iconNames.reduce((acc, name) => {
+      acc[name] = (props) => <LucideIcon name={name} {...props} />;
+      return acc;
+    }, {});
+
+    const {
+      Home, Map: MapIcon, Heart, User, Search, MapPin, ChevronLeft, Navigation2, 
+      Star, Clock, MoreHorizontal, Mail, Lock, EyeOff, Settings, Bell, Shield, 
+      LogOut, MapPinned, ArrowRight, X
+    } = Icons;
+    // ------------------------------------------------
+
+
+    // --- Mock Data & Constants ---
+    const MOCK_IMAGES = {
+      kotaLama: "https://images.unsplash.com/photo-1641537900953-e864e263c348?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvbmlhbCUyMGhlcml0YWdlJTIwYnVpbGRpbmclMjBzZW1hcmFuZ3xlbnwxfHx8fDE3NzY1NzUxNDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      goaKreo: "https://images.unsplash.com/photo-1610906242739-7a3b50162b0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxncmVlbiUyMG5hdHVyZSUyMGxhbmRzY2FwZSUyMGluZG9uZXNpYXxlbnwxfHx8fDE3NzY1NzUxNDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      kampungBatik: "https://images.unsplash.com/photo-1738077398088-b56627bd9c3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMHZpbGxhZ2UlMjBzdHJlZXQlMjBpbmRvbmVzaWF8ZW58MXx8fHwxNzc2NTc1MTQyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      foodMarket: "https://images.unsplash.com/photo-1568622998407-0084ebf482b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwZm9vZCUyMG1hcmtldCUyMG5pZ2h0fGVufDF8fHx8MTc3NjU3NTE0M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      samPooKong: "https://images.unsplash.com/photo-1702815051457-4e27b7064aac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxTYW0lMjBQb28lMjBLb25nJTIwU2VtYXJhbmd8ZW58MXx8fHwxNzc2NTc2NzA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      lawangSewu: "https://images.unsplash.com/photo-1652100591395-6d512bfaf5bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxMYXdhbmclMjBTZXd1JTIwU2VtYXJhbmd8ZW58MXx8fHwxNzc2NTc2NzA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      semarangLandmark: "https://images.unsplash.com/photo-1684208824620-adb614d898c2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxTZW1hcmFuZyUyMGNpdHklMjBsYW5kbWFya3xlbnwxfHx8fDE3NzY1NzY3MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    };
+
+    const DESTINATIONS = [
+      { id: "kota-lama", name: "Kota Lama Semarang", image: MOCK_IMAGES.kotaLama, status: "Ramai", statusColor: "text-rose-500", desc: "Pesona arsitektur kolonial peninggalan masa penjajahan Belanda.", rating: 4.8 },
+      { id: "lawang-sewu", name: "Lawang Sewu", image: MOCK_IMAGES.lawangSewu, status: "Ramai", statusColor: "text-rose-500", desc: "Bangunan bersejarah ikonik di Semarang yang dulunya kantor NIS.", rating: 4.7 },
+      { id: "sam-poo-kong", name: "Sam Poo Kong", image: MOCK_IMAGES.samPooKong, status: "Moderate", statusColor: "text-amber-500", desc: "Kelenteng bersejarah petilasan Laksamana Cheng Ho.", rating: 4.6 },
+      { id: "simpang-lima", name: "Simpang Lima", image: "https://images.unsplash.com/photo-1655178353025-a20009e3a28f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaXR5JTIwc3F1YXJlJTIwaW5kb25lc2lhfGVufDF8fHx8MTc3NjYwMDU4MHww&ixlib=rb-4.1.0&q=80&w=1080", status: "Ramai", statusColor: "text-rose-500", desc: "Alun-alun pusat kota yang selalu hidup dengan aneka kuliner.", rating: 4.7 },
+      { id: "masjid-agung", name: "Masjid Agung Jawa Tengah", image: "https://images.unsplash.com/photo-1614157196885-b9ddd59e3f23?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXNqaWQlMjBhZ3VuZyUyMGphd2ElMjB0ZW5nYWh8ZW58MXx8fHwxNzc2NjAwNTY5fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Masjid megah dengan arsitektur campuran Jawa, Islam, dan Romawi.", rating: 4.9 },
+      { id: "semarang-zoo", name: "Semarang Zoo", image: "https://images.unsplash.com/photo-1619361359785-4508f8836d0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjB6b28lMjBhbmltYWxzfGVufDF8fHx8MTc3NjU5NTk0MXww&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Kebun binatang populer untuk rekreasi keluarga di akhir pekan.", rating: 4.3 },
+      { id: "puri-maerokoco", name: "Puri Maerokoco", image: "https://images.unsplash.com/photo-1643216120728-fa08e985b178?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjB0cmFkaXRpb25hbCUyMGhvdXNlfGVufDF8fHx8MTc3NjYwMTAwNHww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Taman mini Jawa Tengah yang menampilkan rumah adat dari berbagai daerah.", rating: 4.5 },
+      { id: "taman-lele", name: "Kampung Wisata Taman Lele", image: "https://images.unsplash.com/photo-1549973890-38d08b229439?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuYXR1cmUlMjBwYXJrJTIwc2VtYXJhbmd8ZW58MXx8fHwxNzc2NjAxMDA2fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Taman rekreasi keluarga yang asri dan sejuk.", rating: 4.2 },
+      { id: "tinjomoyo", name: "Hutan Wisata Tinjomoyo", image: "https://images.unsplash.com/photo-1626527220303-37fa038d724b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwaW5lJTIwZm9yZXN0JTIwaW5kb25lc2lhfGVufDF8fHx8MTc3NjYwMDU4MHww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Hutan pinus yang sejuk, cocok untuk bersantai dan hunting foto.", rating: 4.4 },
+      { id: "ranggawarsita", name: "Museum Ranggawarsita", image: "https://images.unsplash.com/photo-1688701035915-ad0399f05667?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBtdXNldW18ZW58MXx8fHwxNzc2NjAxMDA3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Museum terlengkap di Jawa Tengah yang menyimpan berbagai peninggalan sejarah.", rating: 4.6 },
+      { id: "raden-saleh", name: "Taman Budaya Raden Saleh", image: "https://images.unsplash.com/photo-1707371773021-d39017b761f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBwYXJrfGVufDF8fHx8MTc3NjYwMTAxNnww&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Pusat kegiatan seni dan budaya serta teater di Semarang.", rating: 4.3 },
+      { id: "goa-kreo", name: "Goa Kreo", image: MOCK_IMAGES.goaKreo, status: "Quiet", statusColor: "text-emerald-500", desc: "Nikmati suasana alam yang sejuk di Goa Kreo dengan kera-kera liarnya.", rating: 4.5 },
+      { id: "waduk-jatibarang", name: "Waduk Jatibarang", image: "https://images.unsplash.com/photo-1603260913204-7c37bdec19bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyaXZlciUyMG5hdHVyZSUyMGluZG9uZXNpYXxlbnwxfHx8fDE3NzY2MDEwMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Waduk buatan dengan pemandangan indah, sering dikunjungi wisatawan.", rating: 4.4 },
+      { id: "kampung-batik", name: "Kampung Batik Semarang", image: MOCK_IMAGES.kampungBatik, status: "Moderate", statusColor: "text-amber-500", desc: "Pusat pengrajin batik khas Semarang yang kaya warna.", rating: 4.6 },
+      { id: "kandri", name: "Desa Wisata Kandri", image: "https://images.unsplash.com/photo-1756694915826-bacbfda5cd50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBydXJhbCUyMHZpbGxhZ2V8ZW58MXx8fHwxNzc2NjAxMDA1fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Desa wisata dengan alam pedesaan yang khas dan asri.", rating: 4.5 },
+      { id: "kedungpane", name: "Desa Wisata Kedungpane", image: "https://images.unsplash.com/photo-1637084786437-dff6031e3e57?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBuYXR1cmUlMjBmb3Jlc3R8ZW58MXx8fHwxNzc2NjAxMDI3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Suasana sejuk desa wisata yang memanjakan mata Anda.", rating: 4.2 },
+      { id: "kampung-jawi", name: "Kampung Jawi", image: "https://images.unsplash.com/photo-1659224208036-a909ce9ccb5f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqYXZhbmVzZSUyMHRyYWRpdGlvbmFsJTIwdmlsbGFnZXxlbnwxfHx8fDE3NzY2MDEwMDd8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Nikmati aneka ragam kuliner tradisional Jawa di malam hari.", rating: 4.6 },
+      { id: "pantai-marina", name: "Pantai Marina", image: "https://images.unsplash.com/photo-1651133291221-93753ab7beb0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZWFjaCUyMHN1bnNldCUyMGluZG9uZXNpYXxlbnwxfHx8fDE3NzY2MDEwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Ramai", statusColor: "text-rose-500", desc: "Pantai populer untuk berjalan santai dan melihat matahari terbenam.", rating: 4.3 },
+      { id: "jungle-toon", name: "Jungle Toon Waterpark", image: "https://images.unsplash.com/photo-1708157730402-67cc5b19e335?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXRlcmZhbGwlMjBpbmRvbmVzaWF8ZW58MXx8fHwxNzc2NjAwNTgxfDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Taman bermain air yang seru untuk liburan bersama keluarga.", rating: 4.4 },
+      { id: "makam-ki-ageng", name: "Makam Ki Ageng Pandanaran", image: "https://images.unsplash.com/photo-1723573552624-4befef17e45f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0b21iJTIwbW9zcXVlJTIwaW5kb25lc2lhfGVufDF8fHx8MTc3NjYwMTAxNnww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Wisata religi makam bupati pertama dan pendiri Kota Semarang.", rating: 4.7 },
+      { id: "mandala-bhakti", name: "Museum Perjuangan Mandala Bhakti", image: "https://images.unsplash.com/photo-1728484697896-4d820ab8bafe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWxpdGFyeSUyMGluZG9uZXNpYXxlbnwxfHx8fDE3NzY2MDEwMjN8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Menyimpan koleksi senjata dan diorama sejarah perjuangan bangsa.", rating: 4.5 },
+      { id: "rekor-dunia", name: "Museum Rekor Dunia Indonesia", image: "https://images.unsplash.com/photo-1686987195191-b3f91321d37d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZWNvcmQlMjBtdXNldW0lMjBpbmRvbmVzaWF8ZW58MXx8fHwxNzc2NjAxMDA3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Museum MURI yang mencatat rekor-rekor terhebat di Indonesia.", rating: 4.6 },
+      { id: "old-city-3d", name: "Old City 3D Trick Art", image: "https://images.unsplash.com/photo-1569342380852-035f42d9ca41?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnQlMjBtdXNldW0lMjBpbmRvbmVzaWF8ZW58MXx8fHwxNzc2NjAxMDE2fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Museum seni tipuan mata 3 dimensi yang unik dan fotogenik.", rating: 4.4 },
+      { id: "buddhagaya", name: "Vihara Buddhagaya (Watugong)", image: "https://images.unsplash.com/photo-1702203614057-eb91ae07fb96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWdvZGElMjBhdmFsb2tpdGVzdmFyYSUyMHNlbWFyYW5nfGVufDF8fHx8MTc3NjYwMTAwNnww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Vihara megah dengan Pagoda Avalokitesvara setinggi 45 meter yang ikonik.", rating: 4.8 },
+      { id: "curug-gondoriyo", name: "Curug Gondoriyo", image: "https://images.unsplash.com/photo-1700277043348-3bdb1f626202?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXRlcmZhbGwlMjBzZW1hcmFuZ3xlbnwxfHx8fDE3NzY2MDEwMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Air terjun alami yang dihiasi tata lampu warna-warni saat malam.", rating: 4.3 },
+      { id: "silayur-park", name: "Silayur Park", image: "https://images.unsplash.com/photo-1730024373135-1bc8a048ac79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBjb2xvcmZ1bCUyMHZpbGxhZ2V8ZW58MXx8fHwxNzc2NjAxMDI3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Taman wisata alam keluarga dengan beragam wahana menarik.", rating: 4.2 },
+      { id: "dung-tungkul", name: "Dung Tungkul Meteseh", image: "https://images.unsplash.com/photo-1695306651771-be64af55a39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjB3YXRlcmZhbGx8ZW58MXx8fHwxNzc2NjAxMDI3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Wisata alam sungai dan perbukitan hijau yang mempesona.", rating: 4.1 },
+      { id: "firdaus-fatimah", name: "Firdaus Fatimah Zahra", image: "https://images.unsplash.com/photo-1649415192329-3cec675dfeb7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiaWclMjBtb3NxdWUlMjBpbmRvbmVzaWF8ZW58MXx8fHwxNzc2NjAxMDIzfDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Wisata religi replika bangunan-bangunan untuk manasik haji.", rating: 4.7 },
+      { id: "dpong", name: "D'pong Semarang", image: "https://images.unsplash.com/photo-1649744580493-c5d1cac78209?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZWNyZWF0aW9uJTIwcGFyayUyMGluZG9uZXNpYXxlbnwxfHx8fDE3NzY2MDEwMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Kawasan rekreasi keluarga dengan pemandangan alam memukau.", rating: 4.3 },
+      { id: "gelanggang-pemuda", name: "Gelanggang Pemuda Manunggal", image: "https://images.unsplash.com/photo-1728640845251-570d1243cfc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydHMlMjBzdGFkaXVtJTIwaW5kb25lc2lhfGVufDF8fHx8MTc3NjYwMTAwN3ww&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Pusat kegiatan olahraga, pertunjukan, dan acara kepemudaan.", rating: 4.2 },
+      { id: "pura-agung", name: "Pura Agung Giri Natha", image: "https://images.unsplash.com/photo-1704110070859-813f7b83e7b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoaW5kdSUyMHRlbXBsZSUyMHNlbWFyYW5nfGVufDF8fHx8MTc3NjYwMTAwN3ww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Pura Hindu dengan arsitektur khas Bali megah di atas perbukitan.", rating: 4.6 }
+    ];
+
+    const CATEGORY_MAP = {
+      Heritage: [
+        "kota-lama", "lawang-sewu", "sam-poo-kong", "masjid-agung",
+        "puri-maerokoco", "ranggawarsita", "kampung-batik", "kampung-jawi",
+        "makam-ki-ageng", "mandala-bhakti", "rekor-dunia", "buddhagaya",
+        "firdaus-fatimah", "pura-agung"
+      ],
+      Nature: [
+        "semarang-zoo", "taman-lele", "tinjomoyo", "goa-kreo", "waduk-jatibarang",
+        "kandri", "kedungpane", "pantai-marina", "jungle-toon", "curug-gondoriyo",
+        "silayur-park", "dung-tungkul", "dpong"
+      ],
+      Culinary: [
+        "simpang-lima"
+      ],
+      Art: [
+        "raden-saleh", "old-city-3d", "gelanggang-pemuda"
+      ]
+    };
+
+    const NEARBY_MAPPING = {
+      "lawang-sewu": ["mandala-bhakti", "sam-poo-kong", "simpang-lima"],
+      "mandala-bhakti": ["lawang-sewu", "sam-poo-kong", "simpang-lima"],
+      "simpang-lima": ["raden-saleh", "makam-ki-ageng", "lawang-sewu", "kota-lama"],
+      "raden-saleh": ["simpang-lima", "makam-ki-ageng", "masjid-agung"],
+      "makam-ki-ageng": ["simpang-lima", "raden-saleh", "lawang-sewu"],
+      "gelanggang-pemuda": ["simpang-lima", "raden-saleh"],
+      "kota-lama": ["kampung-batik", "old-city-3d", "simpang-lima", "masjid-agung"],
+      "kampung-batik": ["kota-lama", "old-city-3d", "simpang-lima", "masjid-agung"],
+      "old-city-3d": ["kota-lama", "kampung-batik", "simpang-lima"],
+      "masjid-agung": ["kota-lama", "kampung-batik", "simpang-lima"],
+      "sam-poo-kong": ["lawang-sewu", "mandala-bhakti", "pura-agung"],
+      "puri-maerokoco": ["pantai-marina", "ranggawarsita", "jungle-toon"],
+      "pantai-marina": ["puri-maerokoco", "ranggawarsita", "jungle-toon"],
+      "ranggawarsita": ["puri-maerokoco", "pantai-marina", "sam-poo-kong"],
+      "jungle-toon": ["pantai-marina", "puri-maerokoco"],
+      "pura-agung": ["sam-poo-kong", "lawang-sewu", "tinjomoyo"],
+      "goa-kreo": ["waduk-jatibarang", "kandri", "kampung-jawi"],
+      "waduk-jatibarang": ["goa-kreo", "kandri", "kampung-jawi"],
+      "kandri": ["goa-kreo", "waduk-jatibarang", "kampung-jawi"],
+      "kampung-jawi": ["tinjomoyo", "goa-kreo", "waduk-jatibarang"],
+      "tinjomoyo": ["kampung-jawi", "buddhagaya", "pura-agung"],
+      "buddhagaya": ["rekor-dunia", "tinjomoyo", "dung-tungkul"],
+      "rekor-dunia": ["buddhagaya", "tinjomoyo", "dung-tungkul"],
+      "dung-tungkul": ["rekor-dunia", "buddhagaya"],
+      "semarang-zoo": ["taman-lele", "silayur-park", "firdaus-fatimah"],
+      "taman-lele": ["semarang-zoo", "silayur-park", "kedungpane"],
+      "silayur-park": ["semarang-zoo", "taman-lele", "kedungpane", "curug-gondoriyo"],
+      "kedungpane": ["silayur-park", "taman-lele", "dpong", "curug-gondoriyo"],
+      "curug-gondoriyo": ["kedungpane", "silayur-park", "dpong"],
+      "dpong": ["curug-gondoriyo", "kedungpane", "firdaus-fatimah"],
+      "firdaus-fatimah": ["dpong", "semarang-zoo", "silayur-park"]
+    };
+
+    const DUMMY_UMKM = [
+      {
+        id: 1, name: "Lumpia Mbak Lien", desc: "Lumpia legendaris dengan isian rebung segar dan bumbu khas otentik.",
+        image: "https://images.unsplash.com/photo-1727249293947-00754cf44bdc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwc3RyZWV0JTIwZm9vZHxlbnwxfHx8fDE3NzY2MDI2MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+        rating: 4.8, reviews: 520, distance: "1.2 km", recommendationItem: "Lumpia Basah Rebung", price: "Rp 15.000", tags: ["Jajanan Tradisional", "Halal", "Buka Malam"]
+      },
+      {
+        id: 2, name: "Batik Semarang 16", desc: "Kain batik tulis bermotif pesisir dengan pesona khas Semarangan.",
+        image: "https://images.unsplash.com/photo-1609407683391-7d127a00b3e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwYmF0aWslMjBjcmFmdHxlbnwxfHx8fDE3NzY2MDI2MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+        rating: 4.9, reviews: 150, distance: "3.5 km", recommendationItem: "Kain Batik Motif Asem", price: "Rp 150.000", tags: ["Oleh-Oleh", "Kerajinan", "Lokal"]
+      },
+      {
+        id: 3, name: "Pasar Semawis", desc: "Jajanan pasar dan kuliner malam hari yang sangat meriah di Pecinan.",
+        image: "https://images.unsplash.com/photo-1545105580-06fbbf96241e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwdHJhZGl0aW9uYWwlMjBtYXJrZXR8ZW58MXx8fHwxNzc2NjAyNjI1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+        rating: 4.7, reviews: 1200, distance: "2.1 km", recommendationItem: "Aneka Sate Seafood", price: "Rp 25.000", tags: ["Kuliner Malam", "Street Food", "Banyak Pilihan"]
+      },
+      {
+        id: 4, name: "Kopi Tarik Klasik", desc: "Minuman kopi tradisional buatan lokal dengan biji kopi pilihan terbaik.",
+        image: "https://images.unsplash.com/photo-1775973990808-7195de3e6718?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwbG9jYWwlMjBjb2ZmZWUlMjBzaG9wfGVufDF8fHx8MTc3NjYwMjYyNXww&ixlib=rb-4.1.0&q=80&w=1080",
+        rating: 4.6, reviews: 310, distance: "0.8 km", recommendationItem: "Kopi Tarik Susu", price: "Rp 18.000", tags: ["Tempat Nongkrong", "Kopi Lokal", "Nyaman"]
+      },
+      {
+        id: 5, name: "Oleh-Oleh Bandeng", desc: "Bandeng presto tulang lunak langsung dari pabrik dan tempat pembuatannya.",
+        image: "https://images.unsplash.com/photo-1680188700627-537d543ed3a8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwbG9jYWwlMjBzbmFjayUyMHNvdXZlbmlyfGVufDF8fHx8MTc3NjYwMjYyNnww&ixlib=rb-4.1.0&q=80&w=1080",
+        rating: 4.8, reviews: 890, distance: "5.0 km", recommendationItem: "Bandeng Presto Vacuum", price: "Rp 85.000", tags: ["Oleh-Oleh Khas", "Ikan Laut", "Halal"]
+      }
+    ];
+
+    // --- Sub-components ---
+    const BottomNavBar = ({ activeTab, onTabChange }) => {
+      const tabs = [
+        { id: "home", icon: Home, label: "Home" },
+        { id: "route", icon: MapPinned, label: "Route" },
+        { id: "map", icon: MapIcon, label: "Map" },
+        { id: "profile", icon: User, label: "Profile" },
+      ];
+
+      return (
+        <div className="absolute bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-slate-200 px-6 py-4 rounded-t-3xl z-50">
+          <div className="flex justify-between items-center max-w-sm mx-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={`flex flex-col items-center gap-1 transition-colors ${isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"}`}
+                >
+                  <Icon size={24} className={isActive ? "fill-blue-500/20" : ""} />
+                  <span className="text-[10px] font-medium">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    };
+
+    const LandingScreen = ({ onNavigate }) => {
+      return (
+        <div className="h-full relative flex flex-col bg-slate-900">
+          <img
+            src={MOCK_IMAGES.lawangSewu}
+            className="absolute inset-0 w-full h-full object-cover opacity-60"
+            alt="Lawang Sewu"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+
+          <div className="relative z-10 flex flex-col h-full px-6 pb-12 pt-20">
+            <div className="mt-auto mb-8">
+              <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
+                Discover Historic <br />
+                <span className="text-blue-400">Semarang</span>
+              </h1>
+              <p className="text-slate-300 text-lg leading-relaxed">
+                Explore the beauty of cultural heritage, navigate smart routes, and experience the rich history of Central Java.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <button
+                onClick={() => onNavigate("signup")}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-semibold text-lg transition-colors shadow-lg"
+              >
+                Get Started
+              </button>
+              <button
+                onClick={() => onNavigate("login")}
+                className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 py-4 rounded-2xl font-semibold text-lg transition-colors"
+              >
+                Log In
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const LoginScreen = ({ onNavigate, onLogin }) => {
+      return (
+        <div className="h-full bg-slate-50 flex flex-col relative">
+          <div className="absolute top-0 w-full h-64">
+            <img
+              src={MOCK_IMAGES.semarangLandmark}
+              className="w-full h-full object-cover opacity-80"
+              alt="Semarang Landmark"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-slate-50"></div>
+          </div>
+
+          <button
+            onClick={() => onNavigate("landing")}
+            className="absolute top-12 left-5 z-20 w-10 h-10 rounded-full bg-white/30 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-sm hover:bg-white/50 transition-colors"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <div className="relative z-10 mt-40 bg-white flex-1 rounded-t-[40px] px-6 pt-10 pb-8 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] flex flex-col">
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Welcome Back</h1>
+            <p className="text-slate-500 mb-8">Sign in to continue your journey in Semarang.</p>
+
+            <div className="space-y-5">
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-1.5 block">Email Address</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail size={20} className="text-slate-400" />
+                  </div>
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 pl-11 pr-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-1.5 block">Password</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock size={20} className="text-slate-400" />
+                  </div>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 pl-11 pr-11 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer">
+                    <EyeOff size={20} className="text-slate-400 hover:text-slate-600" />
+                  </div>
+                </div>
+                <div className="flex justify-end mt-2">
+                  <button className="text-blue-600 text-sm font-medium">Forgot Password?</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-auto pt-8">
+              <button
+                onClick={onLogin}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-semibold text-lg shadow-[0_8px_30px_rgba(37,99,235,0.3)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Log In
+              </button>
+              <p className="text-center text-slate-500 mt-6 text-sm">
+                Don't have an account?{" "}
+                <button
+                  onClick={() => onNavigate("signup")}
+                  className="text-blue-600 font-semibold hover:underline"
+                >
+                  Sign Up
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const SignUpScreen = ({ onNavigate, onLogin }) => {
+      return (
+        <div className="h-full bg-slate-50 flex flex-col relative">
+          <div className="absolute top-0 w-full h-64">
+            <img
+              src={MOCK_IMAGES.samPooKong}
+              className="w-full h-full object-cover opacity-80"
+              alt="Sam Poo Kong"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-slate-50"></div>
+          </div>
+
+          <button
+            onClick={() => onNavigate("landing")}
+            className="absolute top-12 left-5 z-20 w-10 h-10 rounded-full bg-white/30 backdrop-blur-md border border-white/40 flex items-center justify-center text-white shadow-sm hover:bg-white/50 transition-colors"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <div className="relative z-10 mt-40 bg-white flex-1 rounded-t-[40px] px-6 pt-10 pb-8 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] flex flex-col">
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Create Account</h1>
+            <p className="text-slate-500 mb-8">Join us and explore the beauty of Semarang.</p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-1.5 block">Full Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <User size={20} className="text-slate-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="John Doe"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 pl-11 pr-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-1.5 block">Email Address</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail size={20} className="text-slate-400" />
+                  </div>
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 pl-11 pr-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-1.5 block">Password</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock size={20} className="text-slate-400" />
+                  </div>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 pl-11 pr-11 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-auto pt-6">
+              <button
+                onClick={onLogin}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-semibold text-lg shadow-[0_8px_30px_rgba(37,99,235,0.3)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Sign Up
+              </button>
+              <p className="text-center text-slate-500 mt-6 text-sm">
+                Already have an account?{" "}
+                <button
+                  onClick={() => onNavigate("login")}
+                  className="text-blue-600 font-semibold hover:underline"
+                >
+                  Log In
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const HomeScreen = ({ onNavigateToRoute, onNavigateToDetail, onNavigateToProfile }) => {
+      const [activeCategory, setActiveCategory] = useState("All");
+      const [selectedUMKM, setSelectedUMKM] = useState(null);
+      
+      const carouselRef = useRef(null);
+      const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+
+      useEffect(() => {
+        if (isCarouselPaused) return;
+
+        const interval = setInterval(() => {
+          if (carouselRef.current) {
+            const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+            const itemWidth = 280 + 16;
+            
+            if (scrollLeft + clientWidth >= scrollWidth - 10) {
+              carouselRef.current.scrollTo({ left: 0, behavior: "smooth" });
+            } else {
+              carouselRef.current.scrollTo({ left: scrollLeft + itemWidth, behavior: "smooth" });
+            }
+          }
+        }, 3000);
+
+        return () => clearInterval(interval);
+      }, [isCarouselPaused]);
+
+      const displayedDestinations =
+        activeCategory === "All"
+          ? DESTINATIONS
+          : DESTINATIONS.filter((d) => CATEGORY_MAP[activeCategory]?.includes(d.id));
+
+      return (
+        <div className="h-full overflow-y-auto pb-24 px-5 pt-12 no-scrollbar">
+          {/* Header */}
+          <div className="w-full box-border flex justify-between items-center mb-8">
+            <div className="min-w-0 pr-4">
+              <h1 className="text-2xl font-semibold text-slate-800 mb-2 leading-tight">
+                Assalamualaikum,<br />
+                Juara 1 <span className="text-yellow-500">👋</span>
+              </h1>
+              <p className="text-slate-500 text-sm truncate">
+                Where do you want to go today?
+              </p>
+            </div>
+            <button
+              onClick={onNavigateToProfile}
+              className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center font-bold text-yellow-900 border-2 border-white shadow-sm text-xl relative transition-transform hover:scale-105 active:scale-95"
+              style={{ background: "linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #D97706 100%)" }}
+            >
+              <div className="absolute inset-[3px] rounded-full border border-yellow-700/30 flex items-center justify-center">
+                <span style={{ textShadow: "0 1px 1px rgba(255,255,255,0.6)" }}>1</span>
+              </div>
+            </button>
+          </div>
+
+          {/* Smart Route Card */}
+          <div className="relative overflow-hidden rounded-3xl p-6 mb-8 w-full shadow-md bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-xl transform -translate-x-5 translate-y-5"></div>
+
+            <h2 className="text-white font-medium text-lg mb-4 relative z-10 flex items-center gap-2">
+              <Navigation2 size={20} className="text-blue-100 fill-blue-100 shrink-0" />{" "}
+              Smart Route for You
+            </h2>
+
+            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm text-blue-50 mb-6 relative z-10 w-full leading-relaxed">
+              <span className="font-medium whitespace-normal">Semarang Zoo</span>
+              <ArrowRight size={14} className="text-blue-200 shrink-0" />
+              <span className="font-medium whitespace-normal">Puri Maerokoco</span>
+              <ArrowRight size={14} className="text-blue-200 shrink-0" />
+              <span className="font-medium whitespace-normal">Pantai Marina</span>
+            </div>
+
+            <button
+              onClick={onNavigateToRoute}
+              className="w-full bg-white/20 hover:bg-white/30 transition backdrop-blur-sm border border-white/20 text-white py-3 rounded-2xl font-medium relative z-10 flex items-center justify-center gap-2 shadow-sm"
+            >
+              View Route Planner <ChevronLeft className="rotate-180" size={18} />
+            </button>
+          </div>
+
+          {/* Categories */}
+          <div className="mb-8">
+            <h3 className="text-slate-800 font-medium text-lg mb-4">Categories</h3>
+            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+              {["All", "Heritage", "Nature", "Culinary", "Art"].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors shadow-sm ${activeCategory === cat ? "bg-blue-600 text-white" : "bg-white text-slate-600 border border-slate-100 hover:bg-slate-50"}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Popular Destinations */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-slate-800 font-medium text-lg">
+                {activeCategory === "All" ? "31 Destinasi Wisata" : `${displayedDestinations.length} ${activeCategory} Destinations`}
+              </h3>
+              <button className="text-blue-600 text-sm font-medium">View All &gt;</button>
+            </div>
+            <div 
+              ref={carouselRef}
+              onMouseEnter={() => setIsCarouselPaused(true)}
+              onMouseLeave={() => setIsCarouselPaused(false)}
+              onTouchStart={() => setIsCarouselPaused(true)}
+              onTouchEnd={() => setIsCarouselPaused(false)}
+              className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-5 px-5 snap-x snap-mandatory"
+            >
+              {displayedDestinations.map((dest) => (
+                <div
+                  key={dest.id}
+                  onClick={() => onNavigateToDetail(dest.id)}
+                  className="min-w-[280px] snap-center shrink-0 bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 cursor-pointer transform transition-transform hover:scale-[1.02]"
+                >
+                  <div className="h-44 w-full relative">
+                    <img src={dest.image} alt={dest.name} className="w-full h-full object-cover" />
+                    <div className="absolute top-3 right-3 bg-white/80 backdrop-blur-md rounded-full p-1.5 shadow-sm">
+                      <Heart size={16} className="text-rose-500" />
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h4 className="text-slate-800 font-medium mb-1 truncate">{dest.name}</h4>
+                    <div className="flex items-center gap-1 text-slate-500 text-xs">
+                      <Star size={12} className="text-yellow-400 fill-yellow-400" />
+                      <span>{dest.rating}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Nearby UMKM */}
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-slate-800 font-medium text-lg">Nearby UMKM</h3>
+              <button className="text-blue-600 text-sm font-medium">View All &gt;</button>
+            </div>
+            <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-5 px-5">
+              {DUMMY_UMKM.map((umkm) => (
+                <div
+                  key={umkm.id}
+                  onClick={() => setSelectedUMKM(umkm)}
+                  className="min-w-[160px] max-w-[160px] bg-white rounded-2xl p-2 shadow-sm border border-slate-100 flex flex-col shrink-0 cursor-pointer hover:bg-slate-50 transition-colors"
+                >
+                  <div className="h-24 w-full rounded-xl overflow-hidden mb-2">
+                    <img src={umkm.image} alt={umkm.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="px-1 flex-1 flex flex-col">
+                    <h4 className="text-[13px] font-semibold text-slate-800 truncate mb-1">{umkm.name}</h4>
+                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-snug mb-3 flex-1">{umkm.desc}</p>
+                    <div className="flex justify-between mt-auto">
+                      <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-full">
+                        <Star size={12} className="text-yellow-400 fill-yellow-400" />
+                        <span className="text-[10px] font-medium text-slate-700">{umkm.rating}</span>
+                      </div>
+                      <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-full">
+                        <MapPin size={10} className="text-blue-500" />
+                        <span className="text-[10px] font-medium text-slate-700">{umkm.distance}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* UMKM Modal */}
+          {selectedUMKM && (
+            <div className="absolute inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 sm:p-0 transition-opacity">
+              <div className="bg-white w-full max-w-md sm:rounded-[24px] rounded-t-[24px] rounded-b-none sm:rounded-b-[24px] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-8 relative">
+                <div className="h-56 w-full relative">
+                  <img src={selectedUMKM.image} alt={selectedUMKM.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                  <button 
+                    onClick={() => setSelectedUMKM(null)} 
+                    className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition"
+                  >
+                    <X size={20} />
+                  </button>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h2 className="text-2xl font-bold text-white mb-1">{selectedUMKM.name}</h2>
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-white/90">
+                      <div className="flex items-center gap-1 bg-black/30 backdrop-blur-md px-2 py-1 rounded-full">
+                        <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                        <span className="font-semibold">{selectedUMKM.rating}</span>
+                        <span className="text-white/70 text-xs">({selectedUMKM.reviews})</span>
+                      </div>
+                      <div className="flex items-center gap-1 bg-black/30 backdrop-blur-md px-2 py-1 rounded-full">
+                        <MapPin size={14} className="text-white" />
+                        <span className="text-xs font-medium">{selectedUMKM.distance}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6">
+                  <p className="text-slate-600 text-sm leading-relaxed mb-5">{selectedUMKM.desc}</p>
+                  <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-5">
+                    <h4 className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Heart size={14} className="fill-blue-600" /> Rekomendasi Menu
+                    </h4>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-800 font-semibold">{selectedUMKM.recommendationItem}</span>
+                      <span className="text-blue-700 font-bold bg-white px-3 py-1 rounded-full shadow-sm text-sm">
+                        {selectedUMKM.price}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mb-2">
+                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tag</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedUMKM.tags.map((tag) => (
+                        <span key={tag} className="px-3 py-1 bg-slate-100 border border-slate-200 text-slate-600 text-xs font-medium rounded-full">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const RouteScreen = ({ onBack }) => {
+      return (
+        <div className="h-full flex flex-col bg-slate-50 relative pb-20">
+          <div className="absolute top-0 w-full px-5 pt-12 pb-4 bg-white/80 backdrop-blur-md border-b border-slate-200 z-20 shadow-sm flex items-center gap-4">
+            <button
+              onClick={onBack}
+              className="p-2 bg-white/80 backdrop-blur-sm shadow-sm rounded-full text-slate-800 border border-slate-200 hover:bg-white transition-colors"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <h1 className="text-xl font-semibold text-slate-800">Smart Route Planner</h1>
+          </div>
+          <div className="flex-1 w-full h-full relative z-10 bg-slate-200">
+            <iframe
+              src="https://khaq22.github.io/SmartTourism-Semarang-User/"
+              width="100%"
+              height="100%"
+              style={{ border: 0, paddingTop: "80px" }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+        </div>
+      );
+    };
+
+    const MapScreen = () => {
+      return (
+        <div className="h-full flex flex-col bg-slate-50 relative pb-20">
+          <div className="absolute top-0 w-full px-5 pt-12 pb-4 bg-white/80 backdrop-blur-md border-b border-slate-200 z-20 shadow-sm flex items-center justify-between">
+            <h1 className="text-xl font-semibold text-slate-800">Semarang Tourism Map</h1>
+            <button className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200">
+              <Search size={20} />
+            </button>
+          </div>
+          <div className="flex-1 w-full h-full relative z-10 bg-slate-200">
+            <iframe
+              src="https://khaq22.github.io/SmartTourism-Semarang-User/persebaran.html"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+            <div className="absolute bottom-6 right-5 flex flex-col gap-3">
+              <button className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg border border-slate-100 text-blue-600 hover:bg-slate-50">
+                <Navigation2 size={24} />
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const ProfileScreen = ({ onLogout }) => {
+      const [currentBgIndex, setCurrentBgIndex] = useState(0);
+      const [activeTab, setActiveTab] = useState('settings');
+
+      const VISITED_TRIPS = DESTINATIONS.slice(0, 12).map((dest, index) => ({
+        ...dest,
+        moment: ["2 weeks ago", "Last month", "3 months ago", "4 months ago", "6 months ago", "Last summer", "1 year ago", "1 year ago", "2 years ago", "2 years ago", "3 years ago", "5 years ago"][index]
+      }));
+
+      const MY_REVIEWS = VISITED_TRIPS.slice(0, 8).map((trip, index) => ({
+        ...trip,
+        reviewScore: [5, 4, 5, 5, 4, 5, 5, 5][index],
+        reviewText: [
+          "Tempat yang sangat indah dan asri! Cocok untuk menenangkan pikiran dari hiruk-pikuk kota.",
+          "Akses jalan sudah cukup baik, tapi fasilitas umum perlu ditingkatkan. Pemandangannya luar biasa.",
+          "Selalu suka ke sini! Spot fotonya banyak dan Instagramable banget. Recommended!",
+          "Harga tiket masuk sepadan dengan pengalaman yang didapatkan. Cuacanya juga sejuk.",
+          "Lumayan bagus untuk liburan bersama keluarga, apalagi kalau cuaca sedang cerah.",
+          "Keren! Sejarah tempat ini sangat menarik untuk dipelajari. Guide-nya juga informatif.",
+          "Tidak pernah bosan berkunjung ke sini. Sangat terawat dan bersih.",
+          "Sangat direkomendasikan bagi yang suka petualangan! Tracking sedikit tapi terbayar lunas."
+        ][index]
+      }));
+
+      useEffect(() => {
+        const interval = setInterval(() => {
+          setCurrentBgIndex((prev) => (prev + 1) % DESTINATIONS.length);
+        }, 4000);
+        return () => clearInterval(interval);
+      }, []);
+
+      return (
+        <div className="h-full flex flex-col bg-slate-50 overflow-y-auto no-scrollbar pb-24">
+          <div className="h-48 relative overflow-hidden bg-slate-200">
+            <img
+              key={DESTINATIONS[currentBgIndex]?.id || currentBgIndex}
+              src={DESTINATIONS[currentBgIndex]?.image || MOCK_IMAGES.lawangSewu}
+              className="w-full h-full object-cover animate-fade-in"
+              alt="Profile Banner"
+            />
+            <div className="absolute inset-0 bg-black/20"></div>
+          </div>
+
+          <div className="px-6 relative flex flex-col items-center">
+            <div
+              className="w-24 h-24 rounded-full border-4 border-white shadow-md flex items-center justify-center font-bold text-yellow-900 text-5xl -mt-12 mb-4 relative z-10"
+              style={{ background: "linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #D97706 100%)" }}
+            >
+              <div className="absolute inset-2 rounded-full border-[3px] border-yellow-700/30 flex items-center justify-center">
+                <span style={{ textShadow: "0 2px 2px rgba(255,255,255,0.6)" }}>1</span>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800">Juara 1</h2>
+            <p className="text-slate-500 text-sm mb-6">juara.satu@example.com</p>
+
+            <div className="w-full flex gap-4 mb-8">
+              <div 
+                onClick={() => setActiveTab(activeTab === 'trips' ? 'settings' : 'trips')}
+                className={`flex-1 p-4 rounded-2xl shadow-sm border text-center cursor-pointer transition-colors ${
+                  activeTab === 'trips' ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-500/20' : 'bg-white border-slate-100 hover:bg-slate-50'
+                }`}
+              >
+                <h3 className="text-2xl font-bold text-blue-600 mb-1">12</h3>
+                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Trips</p>
+              </div>
+              <div className="flex-1 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center">
+                <h3 className="text-2xl font-bold text-emerald-500 mb-1">4.9</h3>
+                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Rating</p>
+              </div>
+              <div 
+                onClick={() => setActiveTab(activeTab === 'reviews' ? 'settings' : 'reviews')}
+                className={`flex-1 p-4 rounded-2xl shadow-sm border text-center cursor-pointer transition-colors ${
+                  activeTab === 'reviews' ? 'bg-amber-50 border-amber-200 ring-2 ring-amber-500/20' : 'bg-white border-slate-100 hover:bg-slate-50'
+                }`}
+              >
+                <h3 className="text-2xl font-bold text-amber-500 mb-1">8</h3>
+                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Reviews</p>
+              </div>
+            </div>
+
+            {activeTab === 'trips' ? (
+              <div className="w-full space-y-4 animate-fade-in pb-8">
+                <h3 className="text-lg font-bold text-slate-800 mb-2 text-left">Destinasi yang Pernah Dikunjungi</h3>
+                {VISITED_TRIPS.map((trip) => (
+                  <div key={trip.id} className="w-full flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
+                    <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
+                      <img src={trip.image} alt={trip.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="text-left flex-1">
+                      <h4 className="text-slate-800 font-bold line-clamp-1">{trip.name}</h4>
+                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                        <MapPin size={12} className="text-blue-500" /> {trip.status}
+                      </p>
+                      <p className="text-xs text-amber-600 font-medium mt-1 italic">{trip.moment}</p>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className="w-full mt-4 py-3 text-sm text-slate-500 hover:text-slate-700 font-medium bg-slate-100 rounded-xl"
+                >
+                  Kembali ke Pengaturan
+                </button>
+              </div>
+            ) : activeTab === 'reviews' ? (
+              <div className="w-full space-y-4 animate-fade-in pb-8">
+                <h3 className="text-lg font-bold text-slate-800 mb-2 text-left w-full">Ulasan Saya</h3>
+                {MY_REVIEWS.map((review) => (
+                  <div key={`review-${review.id}`} className="w-full bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                        <img src={review.image} alt={review.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="text-left flex-1">
+                        <h4 className="text-slate-800 font-bold line-clamp-1">{review.name}</h4>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={12} className={i < review.reviewScore ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-200"} />
+                          ))}
+                        </div>
+                      </div>
+                      <span className="text-xs text-slate-400">{review.moment}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 text-left leading-relaxed">"{review.reviewText}"</p>
+                  </div>
+                ))}
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className="w-full mt-4 py-3 text-sm text-slate-500 hover:text-slate-700 font-medium bg-slate-100 rounded-xl"
+                >
+                  Kembali ke Pengaturan
+                </button>
+              </div>
+            ) : (
+              <div className="w-full space-y-3 animate-fade-in">
+                <button className="w-full flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                    <Settings size={20} />
+                  </div>
+                  <div className="text-left flex-1">
+                    <h4 className="text-slate-800 font-medium">Account Settings</h4>
+                    <p className="text-xs text-slate-500">Personal information, email</p>
+                  </div>
+                  <ChevronLeft size={20} className="text-slate-400 rotate-180" />
+                </button>
+
+                <button className="w-full flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                    <Bell size={20} />
+                  </div>
+                  <div className="text-left flex-1">
+                    <h4 className="text-slate-800 font-medium">Notifications</h4>
+                    <p className="text-xs text-slate-500">Alerts, updates</p>
+                  </div>
+                  <ChevronLeft size={20} className="text-slate-400 rotate-180" />
+                </button>
+
+                <button className="w-full flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
+                    <Shield size={20} />
+                  </div>
+                  <div className="text-left flex-1">
+                    <h4 className="text-slate-800 font-medium">Privacy & Security</h4>
+                    <p className="text-xs text-slate-500">Passwords, data</p>
+                  </div>
+                  <ChevronLeft size={20} className="text-slate-400 rotate-180" />
+                </button>
+
+                <button
+                  onClick={onLogout}
+                  className="w-full flex items-center gap-4 bg-rose-50 p-4 rounded-2xl border border-rose-100 hover:bg-rose-100 transition-colors mt-4"
+                >
+                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-rose-500 shadow-sm">
+                    <LogOut size={20} />
+                  </div>
+                  <div className="text-left flex-1">
+                    <h4 className="text-rose-600 font-medium">Log Out</h4>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    const DetailScreen = ({ locationId, onBack, onNavigateToNearby }) => {
+      const [selectedNearby, setSelectedNearby] = useState(null);
+      const destination = DESTINATIONS.find((d) => d.id === locationId) || DESTINATIONS[0];
+      const nearbyIds = NEARBY_MAPPING[destination.id] || ["simpang-lima", "lawang-sewu", "kota-lama"];
+      const nearbyDestinations = DESTINATIONS.filter(d => nearbyIds.includes(d.id));
+
+      return (
+        <div className="h-full bg-slate-50 relative overflow-hidden">
+          <div className="absolute top-0 w-full h-[45%]">
+            <img src={destination.image} alt={destination.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-50 via-transparent to-black/30"></div>
+            <div className="absolute top-12 left-5 right-5 flex justify-between z-20">
+              <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-slate-900 shadow-sm hover:bg-white/70 transition-colors">
+                <ChevronLeft size={24} />
+              </button>
+              <button className="w-10 h-10 rounded-full bg-white/50 backdrop-blur-md border border-white/40 flex items-center justify-center text-slate-900 shadow-sm hover:bg-white/70 transition-colors">
+                <MoreHorizontal size={24} />
+              </button>
+            </div>
+          </div>
+
+          <div className="absolute top-[40%] w-full h-[60%] bg-white rounded-t-[32px] px-6 pt-8 pb-8 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.08)] z-10 border-t border-slate-100">
+            <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto absolute top-3 left-1/2 -translate-x-1/2"></div>
+            <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
+              <div className="mb-4">
+                <h1 className="text-[26px] font-semibold text-slate-900 mb-2 leading-tight">{destination.name}</h1>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className={`w-2.5 h-2.5 rounded-full ${destination.statusColor.replace("text-", "bg-")} animate-pulse`}></span>
+                  <span className={`text-sm font-medium ${destination.statusColor}`}>{destination.status}</span>
+                </div>
+                <p className="text-slate-600 text-[15px] leading-relaxed mb-8">{destination.desc}</p>
+              </div>
+
+              <h3 className="text-slate-800 font-medium text-lg mb-4">Nearby Places</h3>
+              <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-6 px-6">
+                {nearbyDestinations.map((nearbyDest) => (
+                  <div
+                    key={nearbyDest.id}
+                    onClick={() => setSelectedNearby(nearbyDest)}
+                    className="min-w-[140px] max-w-[140px] bg-slate-50 rounded-[20px] p-2 border border-slate-100 shadow-sm cursor-pointer hover:bg-slate-100 transition-colors shrink-0"
+                  >
+                    <img src={nearbyDest.image} className="w-full h-[85px] rounded-2xl object-cover mb-2" alt={nearbyDest.name} />
+                    <h4 className="text-sm font-medium text-slate-800 px-1 truncate">{nearbyDest.name}</h4>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="absolute bottom-6 left-6 right-6">
+              <button className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-4 rounded-[20px] font-semibold text-[17px] shadow-[0_8px_30px_rgba(79,70,229,0.3)] transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                Add to Trip
+              </button>
+            </div>
+          </div>
+
+          {selectedNearby && (
+            <div className="absolute inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 sm:p-0 transition-opacity">
+              <div className="bg-white w-full max-w-md sm:rounded-[24px] rounded-t-[24px] rounded-b-none sm:rounded-b-[24px] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-8 relative flex flex-col max-h-[90%]">
+                <div className="h-56 w-full relative shrink-0">
+                  <img src={selectedNearby.image} alt={selectedNearby.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                  <button onClick={() => setSelectedNearby(null)} className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition">
+                    <X size={20} />
+                  </button>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h2 className="text-2xl font-bold text-white mb-1">{selectedNearby.name}</h2>
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-white/90">
+                      <div className="flex items-center gap-1 bg-black/30 backdrop-blur-md px-2 py-1 rounded-full">
+                        <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                        <span className="font-semibold">{selectedNearby.rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6 overflow-y-auto no-scrollbar">
+                  <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-4">
+                    <h4 className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <MapPin size={14} className="fill-blue-600" /> Keterangan Destinasi
+                    </h4>
+                    <p className="text-slate-600 text-sm leading-relaxed">{selectedNearby.desc}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    function App() {
+      const [appState, setAppState] = useState("landing");
+      const [activeTab, setActiveTab] = useState("home");
+      const [activeLocation, setActiveLocation] = useState(null);
+
+      const isViewingDetail = activeLocation !== null;
+
+      return (
+        <div className="min-h-screen bg-slate-900 flex items-center justify-center p-2 sm:p-4">
+          <div className="relative w-full max-w-[400px] h-[850px] max-h-[95vh] bg-slate-50 rounded-[35px] sm:rounded-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden border-[6px] sm:border-[8px] border-slate-800 mx-auto flex flex-col">
+            
+            {appState === "landing" && <LandingScreen onNavigate={setAppState} />}
+            {appState === "login" && <LoginScreen onNavigate={setAppState} onLogin={() => setAppState("main")} />}
+            {appState === "signup" && <SignUpScreen onNavigate={setAppState} onLogin={() => setAppState("main")} />}
+
+            {appState === "main" && (
+              <>
+                <div className={!isViewingDetail && activeTab === "home" ? "h-full" : "hidden"}>
+                  <HomeScreen
+                    onNavigateToRoute={() => setActiveTab("route")}
+                    onNavigateToDetail={(id) => setActiveLocation(id)}
+                    onNavigateToProfile={() => setActiveTab("profile")}
+                  />
+                </div>
+
+                <div className={!isViewingDetail && activeTab === "route" ? "h-full" : "hidden"}>
+                  <RouteScreen onBack={() => setActiveTab("home")} />
+                </div>
+
+                <div className={!isViewingDetail && activeTab === "map" ? "h-full" : "hidden"}>
+                  <MapScreen />
+                </div>
+
+                <div className={!isViewingDetail && activeTab === "profile" ? "h-full" : "hidden"}>
+                  <ProfileScreen
+                    onLogout={() => {
+                      setAppState("landing");
+                      setActiveTab("home");
+                    }}
+                  />
+                </div>
+
+                {isViewingDetail && (
+                  <DetailScreen
+                    locationId={activeLocation}
+                    onBack={() => setActiveLocation(null)}
+                    onNavigateToNearby={(id) => setActiveLocation(id)}
+                  />
+                )}
+
+                {!isViewingDetail && (
+                  <BottomNavBar activeTab={activeTab} onTabChange={setActiveTab} />
+                )}
+              </>
+            )}
+
+            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-200 rounded-full z-[100] pointer-events-none"></div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
