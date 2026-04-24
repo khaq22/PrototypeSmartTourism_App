@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smarttour-cache-v1';
+const CACHE_NAME = 'smarttour-cache-v2';
 const urlsToCache = [
   '/PrototypeSmartTourism_App/',
   '/PrototypeSmartTourism_App/index.html'
