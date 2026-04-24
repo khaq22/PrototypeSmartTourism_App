@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <link rel="icon" type="image/png" href="icon_smarttourism_app.png">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2c3e50">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SmartTour">
-  <link rel="apple-touch-icon" href="icon_smarttourism_app.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartTour Semarang - KTI RISE 2026</title>
@@ -88,7 +81,7 @@
     // Daftar semua ikon yang digunakan di aplikasi
     const iconNames = [
       "Home", "Map", "Heart", "User", "Search", "MapPin", "ChevronLeft", "Navigation2", 
-      "Star", "Clock", "MoreHorizontal", "Mail", "Lock", "EyeOff", "Settings", "Bell", "Shield", 
+      "Star", "Clock", "MoreHorizontal", "Mail", "Lock", "EyeOff", "Eye", "Settings", "Bell", "Shield", 
       "LogOut", "MapPinned", "ArrowRight", "X"
     ];
 
@@ -100,7 +93,7 @@
 
     const {
       Home, Map: MapIcon, Heart, User, Search, MapPin, ChevronLeft, Navigation2, 
-      Star, Clock, MoreHorizontal, Mail, Lock, EyeOff, Settings, Bell, Shield, 
+      Star, Clock, MoreHorizontal, Mail, Lock, EyeOff, Eye, Settings, Bell, Shield, 
       LogOut, MapPinned, ArrowRight, X
     } = Icons;
     // ------------------------------------------------
@@ -121,34 +114,34 @@
       { id: "kota-lama", name: "Kota Lama Semarang", image: MOCK_IMAGES.kotaLama, status: "Ramai", statusColor: "text-rose-500", desc: "Pesona arsitektur kolonial peninggalan masa penjajahan Belanda.", rating: 4.8 },
       { id: "lawang-sewu", name: "Lawang Sewu", image: MOCK_IMAGES.lawangSewu, status: "Ramai", statusColor: "text-rose-500", desc: "Bangunan bersejarah ikonik di Semarang yang dulunya kantor NIS.", rating: 4.7 },
       { id: "sam-poo-kong", name: "Sam Poo Kong", image: MOCK_IMAGES.samPooKong, status: "Moderate", statusColor: "text-amber-500", desc: "Kelenteng bersejarah petilasan Laksamana Cheng Ho.", rating: 4.6 },
-      { id: "simpang-lima", name: "Simpang Lima", image: "https://images.unsplash.com/photo-1655178353025-a20009e3a28f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaXR5JTIwc3F1YXJlJTIwaW5kb25lc2lhfGVufDF8fHx8MTc3NjYwMDU4MHww&ixlib=rb-4.1.0&q=80&w=1080", status: "Ramai", statusColor: "text-rose-500", desc: "Alun-alun pusat kota yang selalu hidup dengan aneka kuliner.", rating: 4.7 },
+      { id: "simpang-lima", name: "Simpang Lima", image: "https://travelspromo.com/wp-content/uploads/2021/04/Lapangan-Simpang-Lima-Semarang.jpg", status: "Ramai", statusColor: "text-rose-500", desc: "Alun-alun pusat kota yang selalu hidup dengan aneka kuliner.", rating: 4.7 },
       { id: "masjid-agung", name: "Masjid Agung Jawa Tengah", image: "https://images.unsplash.com/photo-1614157196885-b9ddd59e3f23?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXNqaWQlMjBhZ3VuZyUyMGphd2ElMjB0ZW5nYWh8ZW58MXx8fHwxNzc2NjAwNTY5fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Masjid megah dengan arsitektur campuran Jawa, Islam, dan Romawi.", rating: 4.9 },
-      { id: "semarang-zoo", name: "Semarang Zoo", image: "https://images.unsplash.com/photo-1619361359785-4508f8836d0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjB6b28lMjBhbmltYWxzfGVufDF8fHx8MTc3NjU5NTk0MXww&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Kebun binatang populer untuk rekreasi keluarga di akhir pekan.", rating: 4.3 },
-      { id: "puri-maerokoco", name: "Puri Maerokoco", image: "https://images.unsplash.com/photo-1643216120728-fa08e985b178?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjB0cmFkaXRpb25hbCUyMGhvdXNlfGVufDF8fHx8MTc3NjYwMTAwNHww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Taman mini Jawa Tengah yang menampilkan rumah adat dari berbagai daerah.", rating: 4.5 },
-      { id: "taman-lele", name: "Kampung Wisata Taman Lele", image: "https://images.unsplash.com/photo-1549973890-38d08b229439?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuYXR1cmUlMjBwYXJrJTIwc2VtYXJhbmd8ZW58MXx8fHwxNzc2NjAxMDA2fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Taman rekreasi keluarga yang asri dan sejuk.", rating: 4.2 },
-      { id: "tinjomoyo", name: "Hutan Wisata Tinjomoyo", image: "https://images.unsplash.com/photo-1626527220303-37fa038d724b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwaW5lJTIwZm9yZXN0JTIwaW5kb25lc2lhfGVufDF8fHx8MTc3NjYwMDU4MHww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Hutan pinus yang sejuk, cocok untuk bersantai dan hunting foto.", rating: 4.4 },
-      { id: "ranggawarsita", name: "Museum Ranggawarsita", image: "https://images.unsplash.com/photo-1688701035915-ad0399f05667?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBtdXNldW18ZW58MXx8fHwxNzc2NjAxMDA3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Museum terlengkap di Jawa Tengah yang menyimpan berbagai peninggalan sejarah.", rating: 4.6 },
-      { id: "raden-saleh", name: "Taman Budaya Raden Saleh", image: "https://images.unsplash.com/photo-1707371773021-d39017b761f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBwYXJrfGVufDF8fHx8MTc3NjYwMTAxNnww&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Pusat kegiatan seni dan budaya serta teater di Semarang.", rating: 4.3 },
-      { id: "goa-kreo", name: "Goa Kreo", image: MOCK_IMAGES.goaKreo, status: "Quiet", statusColor: "text-emerald-500", desc: "Nikmati suasana alam yang sejuk di Goa Kreo dengan kera-kera liarnya.", rating: 4.5 },
-      { id: "waduk-jatibarang", name: "Waduk Jatibarang", image: "https://images.unsplash.com/photo-1603260913204-7c37bdec19bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyaXZlciUyMG5hdHVyZSUyMGluZG9uZXNpYXxlbnwxfHx8fDE3NzY2MDEwMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Waduk buatan dengan pemandangan indah, sering dikunjungi wisatawan.", rating: 4.4 },
-      { id: "kampung-batik", name: "Kampung Batik Semarang", image: MOCK_IMAGES.kampungBatik, status: "Moderate", statusColor: "text-amber-500", desc: "Pusat pengrajin batik khas Semarang yang kaya warna.", rating: 4.6 },
-      { id: "kandri", name: "Desa Wisata Kandri", image: "https://images.unsplash.com/photo-1756694915826-bacbfda5cd50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBydXJhbCUyMHZpbGxhZ2V8ZW58MXx8fHwxNzc2NjAxMDA1fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Desa wisata dengan alam pedesaan yang khas dan asri.", rating: 4.5 },
-      { id: "kedungpane", name: "Desa Wisata Kedungpane", image: "https://images.unsplash.com/photo-1637084786437-dff6031e3e57?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBuYXR1cmUlMjBmb3Jlc3R8ZW58MXx8fHwxNzc2NjAxMDI3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Suasana sejuk desa wisata yang memanjakan mata Anda.", rating: 4.2 },
-      { id: "kampung-jawi", name: "Kampung Jawi", image: "https://images.unsplash.com/photo-1659224208036-a909ce9ccb5f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqYXZhbmVzZSUyMHRyYWRpdGlvbmFsJTIwdmlsbGFnZXxlbnwxfHx8fDE3NzY2MDEwMDd8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Nikmati aneka ragam kuliner tradisional Jawa di malam hari.", rating: 4.6 },
-      { id: "pantai-marina", name: "Pantai Marina", image: "https://images.unsplash.com/photo-1651133291221-93753ab7beb0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZWFjaCUyMHN1bnNldCUyMGluZG9uZXNpYXxlbnwxfHx8fDE3NzY2MDEwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Ramai", statusColor: "text-rose-500", desc: "Pantai populer untuk berjalan santai dan melihat matahari terbenam.", rating: 4.3 },
-      { id: "jungle-toon", name: "Jungle Toon Waterpark", image: "https://images.unsplash.com/photo-1708157730402-67cc5b19e335?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXRlcmZhbGwlMjBpbmRvbmVzaWF8ZW58MXx8fHwxNzc2NjAwNTgxfDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Taman bermain air yang seru untuk liburan bersama keluarga.", rating: 4.4 },
-      { id: "makam-ki-ageng", name: "Makam Ki Ageng Pandanaran", image: "https://images.unsplash.com/photo-1723573552624-4befef17e45f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0b21iJTIwbW9zcXVlJTIwaW5kb25lc2lhfGVufDF8fHx8MTc3NjYwMTAxNnww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Wisata religi makam bupati pertama dan pendiri Kota Semarang.", rating: 4.7 },
-      { id: "mandala-bhakti", name: "Museum Perjuangan Mandala Bhakti", image: "https://images.unsplash.com/photo-1728484697896-4d820ab8bafe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWxpdGFyeSUyMGluZG9uZXNpYXxlbnwxfHx8fDE3NzY2MDEwMjN8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Menyimpan koleksi senjata dan diorama sejarah perjuangan bangsa.", rating: 4.5 },
-      { id: "rekor-dunia", name: "Museum Rekor Dunia Indonesia", image: "https://images.unsplash.com/photo-1686987195191-b3f91321d37d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZWNvcmQlMjBtdXNldW0lMjBpbmRvbmVzaWF8ZW58MXx8fHwxNzc2NjAxMDA3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Museum MURI yang mencatat rekor-rekor terhebat di Indonesia.", rating: 4.6 },
-      { id: "old-city-3d", name: "Old City 3D Trick Art", image: "https://images.unsplash.com/photo-1569342380852-035f42d9ca41?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnQlMjBtdXNldW0lMjBpbmRvbmVzaWF8ZW58MXx8fHwxNzc2NjAxMDE2fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Museum seni tipuan mata 3 dimensi yang unik dan fotogenik.", rating: 4.4 },
-      { id: "buddhagaya", name: "Vihara Buddhagaya (Watugong)", image: "https://images.unsplash.com/photo-1702203614057-eb91ae07fb96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWdvZGElMjBhdmFsb2tpdGVzdmFyYSUyMHNlbWFyYW5nfGVufDF8fHx8MTc3NjYwMTAwNnww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Vihara megah dengan Pagoda Avalokitesvara setinggi 45 meter yang ikonik.", rating: 4.8 },
-      { id: "curug-gondoriyo", name: "Curug Gondoriyo", image: "https://images.unsplash.com/photo-1700277043348-3bdb1f626202?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXRlcmZhbGwlMjBzZW1hcmFuZ3xlbnwxfHx8fDE3NzY2MDEwMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Air terjun alami yang dihiasi tata lampu warna-warni saat malam.", rating: 4.3 },
-      { id: "silayur-park", name: "Silayur Park", image: "https://images.unsplash.com/photo-1730024373135-1bc8a048ac79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjBjb2xvcmZ1bCUyMHZpbGxhZ2V8ZW58MXx8fHwxNzc2NjAxMDI3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Taman wisata alam keluarga dengan beragam wahana menarik.", rating: 4.2 },
-      { id: "dung-tungkul", name: "Dung Tungkul Meteseh", image: "https://images.unsplash.com/photo-1695306651771-be64af55a39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWElMjB3YXRlcmZhbGx8ZW58MXx8fHwxNzc2NjAxMDI3fDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Wisata alam sungai dan perbukitan hijau yang mempesona.", rating: 4.1 },
-      { id: "firdaus-fatimah", name: "Firdaus Fatimah Zahra", image: "https://images.unsplash.com/photo-1649415192329-3cec675dfeb7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiaWclMjBtb3NxdWUlMjBpbmRvbmVzaWF8ZW58MXx8fHwxNzc2NjAxMDIzfDA&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Wisata religi replika bangunan-bangunan untuk manasik haji.", rating: 4.7 },
-      { id: "dpong", name: "D'pong Semarang", image: "https://images.unsplash.com/photo-1649744580493-c5d1cac78209?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZWNyZWF0aW9uJTIwcGFyayUyMGluZG9uZXNpYXxlbnwxfHx8fDE3NzY2MDEwMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Kawasan rekreasi keluarga dengan pemandangan alam memukau.", rating: 4.3 },
-      { id: "gelanggang-pemuda", name: "Gelanggang Pemuda Manunggal", image: "https://images.unsplash.com/photo-1728640845251-570d1243cfc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydHMlMjBzdGFkaXVtJTIwaW5kb25lc2lhfGVufDF8fHx8MTc3NjYwMTAwN3ww&ixlib=rb-4.1.0&q=80&w=1080", status: "Moderate", statusColor: "text-amber-500", desc: "Pusat kegiatan olahraga, pertunjukan, dan acara kepemudaan.", rating: 4.2 },
-      { id: "pura-agung", name: "Pura Agung Giri Natha", image: "https://images.unsplash.com/photo-1704110070859-813f7b83e7b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoaW5kdSUyMHRlbXBsZSUyMHNlbWFyYW5nfGVufDF8fHx8MTc3NjYwMTAwN3ww&ixlib=rb-4.1.0&q=80&w=1080", status: "Quiet", statusColor: "text-emerald-500", desc: "Pura Hindu dengan arsitektur khas Bali megah di atas perbukitan.", rating: 4.6 }
+      { id: "semarang-zoo", name: "Semarang Zoo", image: "https://asset.kompas.com/crops/KxtLWxpx7PagDwd5rwAdPzZ5VqY=/0x0:0x0/1200x800/data/photo/2020/05/08/5eb445b26de55.jpg", status: "Moderate", statusColor: "text-amber-500", desc: "Kebun binatang populer untuk rekreasi keluarga di akhir pekan.", rating: 4.3 },
+      { id: "puri-maerokoco", name: "Puri Maerokoco", image: "https://pesonakota.com/wp-content/uploads/Destinasi-Maerokoco-Semarang.png", status: "Quiet", statusColor: "text-emerald-500", desc: "Taman mini Jawa Tengah yang menampilkan rumah adat dari berbagai daerah.", rating: 4.5 },
+      { id: "taman-lele", name: "Kampung Wisata Taman Lele", image: "https://joglosemar.id/wp-content/uploads/2025/06/taman-lele-semarang.jpg", status: "Quiet", statusColor: "text-emerald-500", desc: "Taman rekreasi keluarga yang asri dan sejuk.", rating: 4.2 },
+      { id: "tinjomoyo", name: "Hutan Wisata Tinjomoyo", image: "https://bob.kemenpar.go.id/wp-content/uploads/2021/05/Hutan-Tinjomoyo-Semarang.png", status: "Quiet", statusColor: "text-emerald-500", desc: "Hutan pinus yang sejuk, cocok untuk bersantai dan hunting foto.", rating: 4.4 },
+      { id: "ranggawarsita", name: "Museum Ranggawarsita", image: "https://nagantour.com/wp-content/uploads/2023/11/Museum-Ranggawarsita.webp", status: "Quiet", statusColor: "text-emerald-500", desc: "Museum terlengkap di Jawa Tengah yang menyimpan berbagai peninggalan sejarah.", rating: 4.6 },
+      { id: "raden-saleh", name: "Taman Budaya Raden Saleh", image: "https://nagantour.com/wp-content/uploads/2023/11/Taman-Budaya-Raden-Saleh-5.png", status: "Moderate", statusColor: "text-amber-500", desc: "Pusat kegiatan seni dan budaya serta teater di Semarang.", rating: 4.3 },
+      { id: "goa-kreo", name: "Goa Kreo", image: "https://rricoid-assets.obs.ap-southeast-4.myhuaweicloud.com/berita/Semarang/o/1751255897158-WhatsApp_Image_2025-06-25_at_10.05.16/yyabl0ci416fpcs.jpeg", status: "Quiet", statusColor: "text-emerald-500", desc: "Nikmati suasana alam yang sejuk di Goa Kreo dengan kera-kera liarnya.", rating: 4.5 },
+      { id: "waduk-jatibarang", name: "Waduk Jatibarang", image: "https://digitiket.com/data/image/110?group=1&m=181203110521", status: "Moderate", statusColor: "text-amber-500", desc: "Waduk buatan dengan pemandangan indah, sering dikunjungi wisatawan.", rating: 4.4 },
+      { id: "kampung-batik", name: "Kampung Batik Semarang", image: "https://c.inilah.com/reborn/2023/08/1/1204_092801_1892_inilah_com_30c314ab53.jpeg", status: "Moderate", statusColor: "text-amber-500", desc: "Pusat pengrajin batik khas Semarang yang kaya warna.", rating: 4.6 },
+      { id: "kandri", name: "Desa Wisata Kandri", image: "https://assets.kompasiana.com/items/album/2022/03/04/whatsapp-image-2022-02-28-at-18-39-10-62220437e2d60e635d0118f2.jpeg?t=o&v=300", status: "Quiet", statusColor: "text-emerald-500", desc: "Desa wisata dengan alam pedesaan yang khas dan asri.", rating: 4.5 },
+      { id: "kedungpane", name: "Desa Wisata Kedungpane", image: "https://jadesta.kemenpar.go.id/imgpost/75353.jpg", status: "Quiet", statusColor: "text-emerald-500", desc: "Suasana sejuk desa wisata yang memanjakan mata Anda.", rating: 4.2 },
+      { id: "kampung-jawi", name: "Kampung Jawi", image: "https://asset.kompas.com/crops/KI_eFizRMQf04iQ2aBYzl2qqgXU=/0x0:0x0/1200x800/data/photo/2022/08/07/62ef3a362e8d8.jpg", status: "Moderate", statusColor: "text-amber-500", desc: "Nikmati aneka ragam kuliner tradisional Jawa di malam hari.", rating: 4.6 },
+      { id: "pantai-marina", name: "Pantai Marina", image: "https://cnc-magazine.oramiland.com/parenting/images/Pemandangan_Pantai_Marina_instagr.width-800.format-webp.webp", status: "Ramai", statusColor: "text-rose-500", desc: "Pantai populer untuk berjalan santai dan melihat matahari terbenam.", rating: 4.3 },
+      { id: "jungle-toon", name: "Jungle Toon Waterpark", image: "https://www.goersapp.com/blog/wp-content/uploads/2024/06/Jungle-Toon-Waterpark-Semarang-.jpg", status: "Moderate", statusColor: "text-amber-500", desc: "Taman bermain air yang seru untuk liburan bersama keluarga.", rating: 4.4 },
+      { id: "makam-ki-ageng", name: "Makam Ki Ageng Pandanaran", image: "https://direktori.ppid.semarangkota.go.id/wp-content/uploads/2026/01/makam-ki-ageng-pandanaran.webp", status: "Quiet", statusColor: "text-emerald-500", desc: "Wisata religi makam bupati pertama dan pendiri Kota Semarang.", rating: 4.7 },
+      { id: "mandala-bhakti", name: "Museum Perjuangan Mandala Bhakti", image: "https://unnes.ac.id/fisip/wp-content/uploads/sites/10/2023/05/image-10.png", status: "Quiet", statusColor: "text-emerald-500", desc: "Menyimpan koleksi senjata dan diorama sejarah perjuangan bangsa.", rating: 4.5 },
+      { id: "rekor-dunia", name: "Museum Rekor Dunia Indonesia", image: "https://warakngendog.com/wp-content/uploads/2023/05/museum-rekor-dunia-indonesia.png", status: "Moderate", statusColor: "text-amber-500", desc: "Museum MURI yang mencatat rekor-rekor terhebat di Indonesia.", rating: 4.6 },
+      { id: "old-city-3d", name: "Old City 3D Trick Art", image: "https://isbs.dinus.ac.id/wp-content/uploads/sites/2/2018/03/jam-buka-old-city-semarang-1080x506.jpg", status: "Moderate", statusColor: "text-amber-500", desc: "Museum seni tipuan mata 3 dimensi yang unik dan fotogenik.", rating: 4.4 },
+      { id: "buddhagaya", name: "Vihara Buddhagaya (Watugong)", image: "https://i0.wp.com/dcarolina-trans.com/wp-content/uploads/2024/06/322036419_126404376752732_55036967332868447_n.jpeg?fit=1440%2C1800&ssl=1", status: "Quiet", statusColor: "text-emerald-500", desc: "Vihara megah dengan Pagoda Avalokitesvara setinggi 45 meter yang ikonik.", rating: 4.8 },
+      { id: "curug-gondoriyo", name: "Curug Gondoriyo", image: "https://blue.kumparan.com/image/upload/fl_progressive,fl_lossy,c_fill,f_auto,q_auto:best,w_640/v1634025439/01h2vnem2gpdy2bbksmcw2wz75.jpg", status: "Quiet", statusColor: "text-emerald-500", desc: "Air terjun alami yang dihiasi tata lampu warna-warni saat malam.", rating: 4.3 },
+      { id: "silayur-park", name: "Silayur Park", image: "https://image.idntimes.com/post/20221013/fromandroid-f65cedfae48c00403b8b4059adaaa01b.jpg", status: "Moderate", statusColor: "text-amber-500", desc: "Taman wisata alam keluarga dengan beragam wahana menarik.", rating: 4.2 },
+      { id: "dung-tungkul", name: "Dung Tungkul Meteseh", image: "https://madosijateng.com/uploads/202310103030150659-dung.jpg?image=1", status: "Quiet", statusColor: "text-emerald-500", desc: "Wisata alam sungai dan perbukitan hijau yang mempesona.", rating: 4.1 },
+      { id: "firdaus-fatimah", name: "Firdaus Fatimah Zahra", image: "https://cnc-magazine.oramiland.com/parenting/images/C548D84A-FE12-4A53-909F-56BE3F6BB.width-800.format-webp.webp", status: "Moderate", statusColor: "text-amber-500", desc: "Wisata religi replika bangunan-bangunan untuk manasik haji.", rating: 4.7 },
+      { id: "dpong", name: "D'pong Semarang", image: "https://ik.imagekit.io/goodid/gnfi/uploads/articles/large-dpongs-wisata-keluarga-destinasi-wisata-wajib-di-semarang-dengan-berbagai-aktivitas-menarik-ABIZquXhTe.png?tr=w-1200,h-675,fo-center", status: "Quiet", statusColor: "text-emerald-500", desc: "Kawasan rekreasi keluarga dengan pemandangan alam memukau.", rating: 4.3 },
+      { id: "gelanggang-pemuda", name: "Gelanggang Pemuda Manunggal", image: "https://fs.dispora.id/image-uploader/assets/img/product_template/GelanggangRemajaKotamadyaJakartaTimur280.png", status: "Moderate", statusColor: "text-amber-500", desc: "Pusat kegiatan olahraga, pertunjukan, dan acara kepemudaan.", rating: 4.2 },
+      { id: "pura-agung", name: "Pura Agung Giri Natha", image: "https://justdestin.travel.blog/wp-content/uploads/2019/10/pura-giri-natha.jpg?w=800", status: "Quiet", statusColor: "text-emerald-500", desc: "Pura Hindu dengan arsitektur khas Bali megah di atas perbukitan.", rating: 4.6 }
     ];
 
     const CATEGORY_MAP = {
@@ -208,17 +201,17 @@
     const DUMMY_UMKM = [
       {
         id: 1, name: "Lumpia Mbak Lien", desc: "Lumpia legendaris dengan isian rebung segar dan bumbu khas otentik.",
-        image: "https://images.unsplash.com/photo-1727249293947-00754cf44bdc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwc3RyZWV0JTIwZm9vZHxlbnwxfHx8fDE3NzY2MDI2MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+        image: "https://file.fin.co.id/uploads/f/f88c3b854e48c5957fa32db01eff3662.jpg",
         rating: 4.8, reviews: 520, distance: "1.2 km", recommendationItem: "Lumpia Basah Rebung", price: "Rp 15.000", tags: ["Jajanan Tradisional", "Halal", "Buka Malam"]
       },
       {
         id: 2, name: "Batik Semarang 16", desc: "Kain batik tulis bermotif pesisir dengan pesona khas Semarangan.",
-        image: "https://images.unsplash.com/photo-1609407683391-7d127a00b3e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwYmF0aWslMjBjcmFmdHxlbnwxfHx8fDE3NzY2MDI2MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+        image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHHnf_aNzT1T2z0HmlPQZ-63JbKtgQuTFWUw82SM44Kx9OF7EBKSx0qnEccs71H2585O8loIZZTEZ7OceqYSYZVUsuFlox0S4CD8V_UT8lMIFaNpdqTB7aricMjQ9UIsabB_dxp_IiUrw/w1200-h630-p-k-no-nu/IMG_20180505_083156.jpg",
         rating: 4.9, reviews: 150, distance: "3.5 km", recommendationItem: "Kain Batik Motif Asem", price: "Rp 150.000", tags: ["Oleh-Oleh", "Kerajinan", "Lokal"]
       },
       {
         id: 3, name: "Pasar Semawis", desc: "Jajanan pasar dan kuliner malam hari yang sangat meriah di Pecinan.",
-        image: "https://images.unsplash.com/photo-1545105580-06fbbf96241e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwdHJhZGl0aW9uYWwlMjBtYXJrZXR8ZW58MXx8fHwxNzc2NjAyNjI1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+        image: "https://i.ytimg.com/vi/UzT8j_HuriQ/maxresdefault.jpg",
         rating: 4.7, reviews: 1200, distance: "2.1 km", recommendationItem: "Aneka Sate Seafood", price: "Rp 25.000", tags: ["Kuliner Malam", "Street Food", "Banyak Pilihan"]
       },
       {
@@ -227,8 +220,8 @@
         rating: 4.6, reviews: 310, distance: "0.8 km", recommendationItem: "Kopi Tarik Susu", price: "Rp 18.000", tags: ["Tempat Nongkrong", "Kopi Lokal", "Nyaman"]
       },
       {
-        id: 5, name: "Oleh-Oleh Bandeng", desc: "Bandeng presto tulang lunak langsung dari pabrik dan tempat pembuatannya.",
-        image: "https://images.unsplash.com/photo-1680188700627-537d543ed3a8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRvbmVzaWFuJTIwbG9jYWwlMjBzbmFjayUyMHNvdXZlbmlyfGVufDF8fHx8MTc3NjYwMjYyNnww&ixlib=rb-4.1.0&q=80&w=1080",
+        id: 5, name: "Bandeng Presto Semarang", desc: "Bandeng presto tulang lunak langsung dari pabrik dan tempat pembuatannya.",
+        image: "https://lh3.googleusercontent.com/p/AF1QipME4ir42916N9wnjNIlQPjAEdV9EmX75G6ZhoXt=s1360-w1360-h1020-rw",
         rating: 4.8, reviews: 890, distance: "5.0 km", recommendationItem: "Bandeng Presto Vacuum", price: "Rp 85.000", tags: ["Oleh-Oleh Khas", "Ikan Laut", "Halal"]
       }
     ];
@@ -478,6 +471,23 @@
       const [activeCategory, setActiveCategory] = useState("All");
       const [selectedUMKM, setSelectedUMKM] = useState(null);
       
+      // --- SIMULASI SMART ROUTE DINAMIS ---
+      const MOCK_ROUTES = [
+        ["Waduk Jatibarang", "Goa Kreo", "Hutan Tinjomoyo", "Curug Gondoriyo"], // Rute sesuai Planner (Default)
+        ["Semarang Zoo", "Puri Maerokoco", "Pantai Marina"], // Rute Alam (Alternatif 1)
+        ["Kota Lama", "Lawang Sewu", "Simpang Lima", "Sam Poo Kong"] // Rute Heritage (Alternatif 2)
+      ];
+      
+      const [smartRoute, setSmartRoute] = useState(MOCK_ROUTES[0]);
+
+      // Rute akan berubah secara acak (berubah-ubah) setiap kali user kembali ke layar Home
+      // untuk memberikan kesan bahwa AI sedang menyusun rute baru secara real-time.
+      useEffect(() => {
+        const randomIndex = Math.floor(Math.random() * MOCK_ROUTES.length);
+        setSmartRoute(MOCK_ROUTES[randomIndex]);
+      }, []);
+      // -------------------------------------
+
       const carouselRef = useRef(null);
       const [isCarouselPaused, setIsCarouselPaused] = useState(false);
 
@@ -529,7 +539,7 @@
             </button>
           </div>
 
-          {/* Smart Route Card */}
+          {/* Smart Route Card - DINAMIS */}
           <div className="relative overflow-hidden rounded-3xl p-6 mb-8 w-full shadow-md bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-xl transform -translate-x-5 translate-y-5"></div>
@@ -540,11 +550,20 @@
             </h2>
 
             <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm text-blue-50 mb-6 relative z-10 w-full leading-relaxed">
-              <span className="font-medium whitespace-normal">Semarang Zoo</span>
+              <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30">
+                <MapPin size={12} className="text-white" />
+                <span className="font-medium whitespace-nowrap text-white">Titik Anda</span>
+              </div>
               <ArrowRight size={14} className="text-blue-200 shrink-0" />
-              <span className="font-medium whitespace-normal">Puri Maerokoco</span>
-              <ArrowRight size={14} className="text-blue-200 shrink-0" />
-              <span className="font-medium whitespace-normal">Pantai Marina</span>
+              
+              {smartRoute.map((stop, index) => (
+                <React.Fragment key={index}>
+                  <span className="font-medium whitespace-normal">{stop}</span>
+                  {index < smartRoute.length - 1 && (
+                    <ArrowRight size={14} className="text-blue-200 shrink-0" />
+                  )}
+                </React.Fragment>
+              ))}
             </div>
 
             <button
@@ -577,7 +596,7 @@
               <h3 className="text-slate-800 font-medium text-lg">
                 {activeCategory === "All" ? "31 Destinasi Wisata" : `${displayedDestinations.length} ${activeCategory} Destinations`}
               </h3>
-              <button className="text-blue-600 text-sm font-medium">View All &gt;</button>
+              <button className="text-blue-600 text-sm font-medium">View All ></button>
             </div>
             <div 
               ref={carouselRef}
@@ -615,7 +634,7 @@
           <div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-slate-800 font-medium text-lg">Nearby UMKM</h3>
-              <button className="text-blue-600 text-sm font-medium">View All &gt;</button>
+              <button className="text-blue-600 text-sm font-medium">View All ></button>
             </div>
             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-5 px-5">
               {DUMMY_UMKM.map((umkm) => (
@@ -763,6 +782,22 @@
     const ProfileScreen = ({ onLogout }) => {
       const [currentBgIndex, setCurrentBgIndex] = useState(0);
       const [activeTab, setActiveTab] = useState('settings');
+      
+      // State untuk mengontrol menu utama
+      const [showAccountSettings, setShowAccountSettings] = useState(false);
+      const [showNotifications, setShowNotifications] = useState(false);
+      const [showPrivacy, setShowPrivacy] = useState(false);
+
+      // State khusus untuk interaksi di dalam Privacy & Security
+      const [showChangePassword, setShowChangePassword] = useState(false);
+      const [isLocationEnabled, setIsLocationEnabled] = useState(true);
+      
+      // State untuk toggle mata (Show/Hide Password)
+      const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+      const [showNewPassword, setShowNewPassword] = useState(false);
+
+      // State BARU untuk alur Forgot Password
+      const [showForgotPassword, setShowForgotPassword] = useState(false);
 
       const VISITED_TRIPS = DESTINATIONS.slice(0, 12).map((dest, index) => ({
         ...dest,
@@ -895,39 +930,280 @@
               </div>
             ) : (
               <div className="w-full space-y-3 animate-fade-in">
-                <button className="w-full flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                    <Settings size={20} />
-                  </div>
-                  <div className="text-left flex-1">
-                    <h4 className="text-slate-800 font-medium">Account Settings</h4>
-                    <p className="text-xs text-slate-500">Personal information, email</p>
-                  </div>
-                  <ChevronLeft size={20} className="text-slate-400 rotate-180" />
-                </button>
+                
+                {/* ACCOUNT SETTINGS */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden transition-all duration-300">
+                  <button 
+                    onClick={() => {
+                      setShowAccountSettings(!showAccountSettings);
+                      setShowNotifications(false);
+                      setShowPrivacy(false);
+                    }}
+                    className="w-full flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                      <Settings size={20} />
+                    </div>
+                    <div className="text-left flex-1">
+                      <h4 className="text-slate-800 font-medium">Account Settings</h4>
+                      <p className="text-xs text-slate-500">Personal information, email</p>
+                    </div>
+                    <ChevronLeft 
+                      size={20} 
+                      className={`text-slate-400 transition-transform duration-300 ${showAccountSettings ? '-rotate-90' : 'rotate-180'}`} 
+                    />
+                  </button>
 
-                <button className="w-full flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
-                    <Bell size={20} />
-                  </div>
-                  <div className="text-left flex-1">
-                    <h4 className="text-slate-800 font-medium">Notifications</h4>
-                    <p className="text-xs text-slate-500">Alerts, updates</p>
-                  </div>
-                  <ChevronLeft size={20} className="text-slate-400 rotate-180" />
-                </button>
+                  {showAccountSettings && (
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-50 bg-slate-50/30 animate-fade-in">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs font-semibold text-slate-500 mb-1.5 block uppercase tracking-wider">Full Name</label>
+                          <div className="relative">
+                            <input type="text" defaultValue="Juara 1" className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-3 pr-10 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+                            <User size={16} className="absolute right-3 top-3 text-slate-400" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-slate-500 mb-1.5 block uppercase tracking-wider">Email Address</label>
+                          <div className="relative">
+                            <input type="email" defaultValue="juara.satu@example.com" className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-3 pr-10 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+                            <Mail size={16} className="absolute right-3 top-3 text-slate-400" />
+                          </div>
+                        </div>
+                        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-colors mt-2">
+                          Save Changes
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-                <button className="w-full flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
-                    <Shield size={20} />
-                  </div>
-                  <div className="text-left flex-1">
-                    <h4 className="text-slate-800 font-medium">Privacy & Security</h4>
-                    <p className="text-xs text-slate-500">Passwords, data</p>
-                  </div>
-                  <ChevronLeft size={20} className="text-slate-400 rotate-180" />
-                </button>
+                {/* NOTIFICATIONS */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden transition-all duration-300">
+                  <button 
+                    onClick={() => {
+                      setShowNotifications(!showNotifications);
+                      setShowAccountSettings(false);
+                      setShowPrivacy(false);
+                    }}
+                    className="w-full flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                      <Bell size={20} />
+                    </div>
+                    <div className="text-left flex-1">
+                      <h4 className="text-slate-800 font-medium">Notifications</h4>
+                      <p className="text-xs text-slate-500">Alerts, updates</p>
+                    </div>
+                    <ChevronLeft 
+                      size={20} 
+                      className={`text-slate-400 transition-transform duration-300 ${showNotifications ? '-rotate-90' : 'rotate-180'}`} 
+                    />
+                  </button>
 
+                  {showNotifications && (
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-50 bg-slate-50/30 animate-fade-in">
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2 px-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+                            <h5 className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Alerts</h5>
+                          </div>
+                          <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm">
+                            <div className="flex gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500 shrink-0">
+                                <MapPin size={16} />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-xs font-semibold text-slate-800">Kepadatan Tinggi</p>
+                                <p className="text-[11px] text-slate-500 leading-tight">Kota Lama sedang ramai (Ramai). Pertimbangkan rute alternatif.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-2 px-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                            <h5 className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Updates</h5>
+                          </div>
+                          <div className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm space-y-2">
+                            <div className="flex gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 shrink-0">
+                                <Navigation2 size={16} />
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold text-slate-800">Smart Route v2.0</p>
+                                <p className="text-[11px] text-slate-500 leading-tight">Fitur pencarian UMKM sekitar kini lebih akurat!</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* PRIVACY & SECURITY */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden transition-all duration-300">
+                  <button 
+                    onClick={() => {
+                      setShowPrivacy(!showPrivacy);
+                      setShowAccountSettings(false);
+                      setShowNotifications(false);
+                    }}
+                    className="w-full flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
+                      <Shield size={20} />
+                    </div>
+                    <div className="text-left flex-1">
+                      <h4 className="text-slate-800 font-medium">Privacy & Security</h4>
+                      <p className="text-xs text-slate-500">Passwords, data</p>
+                    </div>
+                    <ChevronLeft 
+                      size={20} 
+                      className={`text-slate-400 transition-transform duration-300 ${showPrivacy ? '-rotate-90' : 'rotate-180'}`} 
+                    />
+                  </button>
+
+                  {showPrivacy && (
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-50 bg-slate-50/30 animate-fade-in space-y-3">
+                      
+                      {/* Sub-menu: Change Password dengan Reset Logic */}
+                      <div className="bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden transition-all duration-300">
+                        <button 
+                          onClick={() => {
+                            setShowChangePassword(!showChangePassword);
+                            setShowForgotPassword(false); // Reset view saat ditutup
+                          }}
+                          className="w-full flex items-center justify-between p-3 hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600 shrink-0">
+                              <Lock size={16} />
+                            </div>
+                            <span className="text-sm font-medium text-slate-700">Change Password</span>
+                          </div>
+                          <ChevronLeft size={16} className={`text-slate-400 transition-transform duration-300 shrink-0 ${showChangePassword ? '-rotate-90' : 'rotate-180'}`} />
+                        </button>
+                        
+                        {showChangePassword && (
+                          <div className="px-3 pb-4 pt-1 animate-fade-in">
+                            {!showForgotPassword ? (
+                              // Tampilan Normal: Ganti Password
+                              <div className="space-y-4 animate-fade-in">
+                                {/* Input Current Password */}
+                                <div className="space-y-1">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Current Password</label>
+                                    <button 
+                                      onClick={() => setShowForgotPassword(true)}
+                                      className="text-[10px] font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                                    >
+                                      Forgot Password?
+                                    </button>
+                                  </div>
+                                  <div className="relative">
+                                    <input 
+                                      type={showCurrentPassword ? "text" : "password"} 
+                                      placeholder="••••••••" 
+                                      className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 pl-3 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all" 
+                                    />
+                                    <button 
+                                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600 transition-colors"
+                                    >
+                                      {showCurrentPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                                    </button>
+                                  </div>
+                                </div>
+                                
+                                {/* Input New Password */}
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">New Password</label>
+                                  <div className="relative">
+                                    <input 
+                                      type={showNewPassword ? "text" : "password"} 
+                                      placeholder="••••••••" 
+                                      className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 pl-3 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all" 
+                                    />
+                                    <button 
+                                      onClick={() => setShowNewPassword(!showNewPassword)}
+                                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600 transition-colors"
+                                    >
+                                      {showNewPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                                    </button>
+                                  </div>
+                                </div>
+                                
+                                <button className="w-full bg-slate-800 hover:bg-slate-900 text-white py-2.5 rounded-lg text-xs font-semibold transition-colors shadow-sm">
+                                  Update Password
+                                </button>
+                              </div>
+                            ) : (
+                              // Tampilan Lupa Password (Input Email)
+                              <div className="space-y-3 animate-fade-in pt-2">
+                                <p className="text-[11px] text-slate-500 leading-relaxed mb-3">
+                                  Enter your email address to receive a password reset link.
+                                </p>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Email Address</label>
+                                  <div className="relative">
+                                    <input 
+                                      type="email" 
+                                      defaultValue="juara.satu@example.com"
+                                      placeholder="you@example.com" 
+                                      className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 pl-3 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all" 
+                                    />
+                                    <Mail size={16} className="absolute right-3 top-2.5 text-slate-400" />
+                                  </div>
+                                </div>
+                                
+                                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-xs font-semibold transition-colors mt-2 shadow-sm">
+                                  Send Reset Link
+                                </button>
+                                
+                                <button 
+                                  onClick={() => setShowForgotPassword(false)}
+                                  className="w-full text-center py-2 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors mt-1"
+                                >
+                                  Back to Change Password
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Sub-menu: Location Services Toggle */}
+                      <div 
+                        onClick={() => setIsLocationEnabled(!isLocationEnabled)}
+                        className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isLocationEnabled ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-500'}`}>
+                            <MapPin size={16} />
+                          </div>
+                          <div className="text-left">
+                            <span className="text-sm font-medium text-slate-700 block">Location Services</span>
+                            <span className="text-[10px] text-slate-500 block leading-tight">Required for Smart Route tracking</span>
+                          </div>
+                        </div>
+                        {/* Switch UI */}
+                        <div className={`w-10 h-6 rounded-full relative shrink-0 transition-colors duration-300 ${isLocationEnabled ? 'bg-blue-500' : 'bg-slate-300'}`}>
+                          <div className={`w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-all duration-300 ${isLocationEnabled ? 'left-5' : 'left-1'}`}></div>
+                        </div>
+                      </div>
+
+                      <button className="w-full text-center py-2 text-xs font-semibold text-rose-500 hover:text-rose-600 transition-colors mt-2">
+                        Delete Account
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* LOG OUT */}
                 <button
                   onClick={onLogout}
                   className="w-full flex items-center gap-4 bg-rose-50 p-4 rounded-2xl border border-rose-100 hover:bg-rose-100 transition-colors mt-4"
@@ -939,6 +1215,7 @@
                     <h4 className="text-rose-600 font-medium">Log Out</h4>
                   </div>
                 </button>
+
               </div>
             )}
           </div>
@@ -1101,18 +1378,5 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
-  <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/PrototypeSmartTourism_App/sw.js')
-        .then(registration => {
-          console.log('ServiceWorker berhasil didaftarkan:', registration.scope);
-        })
-        .catch(error => {
-          console.log('Pendaftaran ServiceWorker gagal:', error);
-        });
-    });
-  }
-</script>
 </body>
 </html>
