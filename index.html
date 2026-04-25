@@ -80,21 +80,21 @@
 
     // Daftar semua ikon yang digunakan di aplikasi
     const iconNames = [
-      "Home", "Map", "Heart", "User", "Search", "MapPin", "ChevronLeft", "Navigation2", 
-      "Star", "Clock", "MoreHorizontal", "Mail", "Lock", "EyeOff", "Eye", "Settings", "Bell", "Shield", 
-      "LogOut", "MapPinned", "ArrowRight", "X"
+    "Home", "Map", "Heart", "User", "Search", "MapPin", "ChevronLeft", "Navigation2", 
+    "Star", "Clock", "MoreHorizontal", "Mail", "Lock", "EyeOff", "Eye", "Settings", "Bell", "Shield", 
+    "LogOut", "MapPinned", "ArrowRight", "X", "QrCode"
     ];
 
     // Generate komponen React secara dinamis
     const Icons = iconNames.reduce((acc, name) => {
-      acc[name] = (props) => <LucideIcon name={name} {...props} />;
-      return acc;
+    acc[name] = (props) => <LucideIcon name={name} {...props} />;
+    return acc;
     }, {});
 
     const {
-      Home, Map: MapIcon, Heart, User, Search, MapPin, ChevronLeft, Navigation2, 
-      Star, Clock, MoreHorizontal, Mail, Lock, EyeOff, Eye, Settings, Bell, Shield, 
-      LogOut, MapPinned, ArrowRight, X
+    Home, Map: MapIcon, Heart, User, Search, MapPin, ChevronLeft, Navigation2, 
+    Star, Clock, MoreHorizontal, Mail, Lock, EyeOff, Eye, Settings, Bell, Shield, 
+    LogOut, MapPinned, ArrowRight, X, QrCode
     } = Icons;
     // ------------------------------------------------
 
@@ -228,17 +228,22 @@
 
     // --- Sub-components ---
     const BottomNavBar = ({ activeTab, onTabChange }) => {
-      const tabs = [
+      const tabsLeft = [
         { id: "home", icon: Home, label: "Home" },
         { id: "route", icon: MapPinned, label: "Route" },
+      ];
+      const tabsRight = [
         { id: "map", icon: MapIcon, label: "Map" },
         { id: "profile", icon: User, label: "Profile" },
       ];
 
       return (
-        <div className="absolute bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-slate-200 px-6 py-4 rounded-t-3xl z-50">
-          <div className="flex justify-between items-center max-w-sm mx-auto">
-            {tabs.map((tab) => {
+      <div className="absolute bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-slate-200 px-6 py-4 rounded-t-3xl z-50">
+        <div className="flex justify-between items-center max-w-sm mx-auto relative">
+          
+          {/* Tabs Kiri */}
+          <div className="flex justify-around w-[40%]">
+            {tabsLeft.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
@@ -253,9 +258,38 @@
               );
             })}
           </div>
+
+          {/* Tombol QRIS di Tengah (Floating) */}
+          <button
+            onClick={() => onTabChange('qris')}
+            className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-blue-600 hover:bg-blue-700 rounded-full flex flex-col items-center justify-center text-white shadow-[0_8px_20px_rgba(37,99,235,0.4)] border-[6px] border-slate-50 transition-transform hover:scale-105 active:scale-95 z-50"
+          >
+            <QrCode size={24} />
+            <span className="text-[9px] font-bold mt-0.5 tracking-wider">QRIS</span>
+          </button>
+
+          {/* Tabs Kanan */}
+          <div className="flex justify-around w-[40%]">
+            {tabsRight.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={`flex flex-col items-center gap-1 transition-colors ${isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"}`}
+                >
+                  <Icon size={24} className={isActive ? "fill-blue-500/20" : ""} />
+                  <span className="text-[10px] font-medium">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
         </div>
-      );
-    };
+      </div>
+    );
+  };
 
     const LandingScreen = ({ onNavigate }) => {
       return (
@@ -1313,6 +1347,94 @@
       );
     };
 
+    const QrisScreen = () => {
+      const videoRef = useRef(null);
+      const [hasError, setHasError] = useState(false);
+
+      useEffect(() => {
+        let currentStream = null;
+
+        // Fungsi untuk menyalakan kamera
+        const startCamera = async () => {
+          try {
+            // Meminta akses video, diutamakan kamera belakang (environment) kalau di HP
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: "environment" }
+            });
+            
+            if (videoRef.current) {
+              videoRef.current.srcObject = stream;
+            }
+            currentStream = stream;
+          } catch (err) {
+            console.error("Gagal mengakses kamera:", err);
+            setHasError(true);
+          }
+        };
+
+        startCamera();
+
+        // Cleanup: Matikan kamera saat user pindah ke tab lain (Home/Map/dll)
+        return () => {
+          if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+          }
+        };
+      }, []);
+
+      return (
+        <div className="h-full flex flex-col bg-slate-900 relative">
+          <div className="absolute inset-0 bg-slate-900 z-0 overflow-hidden">
+            {/* Real Camera Feed */}
+            {hasError ? (
+              <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
+                <Shield size={40} className="text-slate-500 mb-3" />
+                <p className="text-slate-400 text-sm">
+                  Kamera tidak dapat diakses.<br/>Pastikan Anda telah memberikan izin kamera pada browser.
+                </p>
+              </div>
+            ) : (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover opacity-60 mix-blend-luminosity"
+              />
+            )}
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 pt-12 pb-24 pointer-events-none">
+            <h2 className="text-white text-xl font-bold mb-8 tracking-wide drop-shadow-md">Scan QRIS</h2>
+            
+            {/* Bingkai Scanner */}
+            <div className="relative w-64 h-64 mb-8">
+              <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-blue-500 rounded-tl-2xl"></div>
+              <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-blue-500 rounded-tr-2xl"></div>
+              <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-blue-500 rounded-bl-2xl"></div>
+              <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-blue-500 rounded-br-2xl"></div>
+              
+              {/* Garis Animasi Scanning */}
+              <div className="w-full h-0.5 bg-blue-400 absolute top-1/2 animate-[ping_2.5s_ease-in-out_infinite] shadow-[0_0_15px_rgba(59,130,246,1)]"></div>
+            </div>
+
+            {/* Tombol Upload (pointer-events-auto agar bisa diklik) */}
+            <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl w-full max-w-sm flex items-center justify-between border border-white/20 cursor-pointer hover:bg-white/20 transition pointer-events-auto">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                  <QrCode size={20} className="text-slate-900" />
+                </div>
+                <div>
+                  <p className="text-white font-medium text-sm">Upload dari Galeri</p>
+                </div>
+              </div>
+              <ChevronLeft size={20} className="text-white rotate-180" />
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     function App() {
       const [appState, setAppState] = useState("landing");
       const [activeTab, setActiveTab] = useState("home");
@@ -1353,6 +1475,11 @@
                       setActiveTab("home");
                     }}
                   />
+                </div>
+
+                {/* Layar QRIS yang baru ditambahkan */}
+                <div className={!isViewingDetail && activeTab === "qris" ? "h-full" : "hidden"}>
+                  <QrisScreen />
                 </div>
 
                 {isViewingDetail && (
